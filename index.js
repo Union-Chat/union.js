@@ -32,6 +32,19 @@ class Message {
     reply(content) {
         this.client.createMessage(this.server.id, content);
     }
+
+    delete() {
+        if (this.author.id !== this.client.user.username) {
+            throw new Error('Cannot delete a message not sent by you!');
+        }
+
+        const payload = {
+            op: 10,
+            d: this.id
+        }
+
+        this.client._ws.send(JSON.stringify(payload));
+    }
 }
 
 
