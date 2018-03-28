@@ -25,8 +25,9 @@ class Message {
         this.server = this.client.servers.get(msg.server);
         this.content = msg.content;
         this.author = msg.author;
-        this.self = this.author === this.client.user.username;
         this.id = msg.id;
+        this.createdAt = msg.createdAt;
+        this.self = this.author === this.client.user.username;
     }
 
     reply(content) {
@@ -34,7 +35,7 @@ class Message {
     }
 
     delete() {
-        if (this.author.id !== this.client.user.username) {
+        if (this.author !== this.client.user.username) {
             throw new Error('Cannot delete a message not sent by you!');
         }
 
