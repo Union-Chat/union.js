@@ -26,6 +26,7 @@ class Message {
         this.content = msg.content;
         this.author = msg.author;
         this.self = this.author === this.client.user.username;
+        this.id = msg.id;
     }
 
     reply(content) {
