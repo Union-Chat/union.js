@@ -32,7 +32,7 @@ class Message {
             throw new Error('Client isn\'t ready!');
         }
         this.client._ws.send(JSON.stringify({
-            op: 7,
+            op: 8,
             d: {
                 content,
                 server: this.server.id
