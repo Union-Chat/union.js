@@ -29,16 +29,7 @@ class Message {
     }
 
     reply(content) {
-        if (!this.client.ready) {
-            throw new Error('Client isn\'t ready!');
-        }
-        this.client._ws.send(JSON.stringify({
-            op: 8,
-            d: {
-                content,
-                server: this.server.id
-            }
-        }));
+        this.client.createMessage(this.server.id, content);
     }
 }
 
@@ -62,6 +53,7 @@ class Client extends EventEmitter {
         this.user = new SelfUser(options.username, options.password);
         this.ready = false;
         this.servers = new Map();
+        this._ws = null;
     }
 
     _connect() {
@@ -107,6 +99,8 @@ class Client extends EventEmitter {
                     this.servers.get(payload.d.server).messages.push(message);
                     this.emit('messageCreate', message);
                     break;
+                case 11: // Error processing request
+                    this.emit('badRequest', payload.d);
             }
         } catch (e) {
             // Unexpected error parsing json or something
@@ -115,6 +109,20 @@ class Client extends EventEmitter {
 
     start() {
         this._connect();
+    }
+
+    createMessage(server, content) {
+        if (!this.ready) {
+            throw new Error('Client isn\'t ready!');
+        }
+
+        this._ws.send(JSON.stringify({
+            op: 8,
+            d: {
+                server,
+                content
+            }
+        }));
     }
 }
 
