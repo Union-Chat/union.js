@@ -14,6 +14,7 @@ class Server {
     constructor(data) {
         this.name = data.name;
         this.id = data.id;
+        this.messages = [];
     }
 }
 
@@ -102,7 +103,9 @@ class Client extends EventEmitter {
                     this.emit('ready');
                     break;
                 case 3: // Message
-                    this.emit('messageCreate', new Message(this, payload.d));
+                    const message = new Message(this, payload.d);
+                    this.servers.get(payload.d.server).messages.push(message);
+                    this.emit('messageCreate', message);
                     break;
             }
         } catch (e) {
