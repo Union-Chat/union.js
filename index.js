@@ -77,7 +77,7 @@ class Client extends EventEmitter {
         }
 
         const encodedAuth = Buffer.from(`${this.user.username}:${this.user.password}`).toString('base64');
-        this._ws = new WebSocket('ws://union.serux.pro:2082', {
+        this._ws = new WebSocket('wss://union.serux.pro:2096', {
             headers: {
                 'Authorization': `Basic ${encodedAuth}`
             }
