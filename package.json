@@ -1,14 +1,25 @@
 {
   "name": "union.js",
   "version": "1.0.0",
-  "description": "",
+  "description": "The official JavaScript lib for Union",
   "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Union-Chat/union.js.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Union-Chat/union.js/issues"
+  },
+  "homepage": "https://github.com/Union-Chat/union.js#readme",
   "dependencies": {
     "ws": "^5.0.0"
   }
