@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/Union-Chat/union.js#readme",
   "dependencies": {
-    "ws": "^5.0.0"
+    "ws": "5.0.0"
   }
 }
