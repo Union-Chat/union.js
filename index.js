@@ -89,7 +89,7 @@ class Client extends EventEmitter {
 
         this._ws.on('close', (code, reason) => {
             this.emit('disconnect', code, reason);
-            // TODO: Reconnects
+            setTimeout(() => this._connect.bind(this), 5e3);
         });
 
         this._ws.on('message', this._handlePayload.bind(this));
