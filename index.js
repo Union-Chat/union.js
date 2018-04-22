@@ -69,7 +69,7 @@ class Client extends EventEmitter {
         this.ready = false;
         this.servers = new Map();
         this._ws = null;
-        this._token = Buffer.from(`${options.username}:${options.password}`).toString('base64');
+        this.token = Buffer.from(`${options.username}:${options.password}`).toString('base64');
     }
 
     _connect() {
@@ -79,7 +79,7 @@ class Client extends EventEmitter {
 
         this._ws = new WebSocket('wss://union.serux.pro:2096', {
             headers: {
-                'Authorization': `Basic ${this._token}`
+                'Authorization': `Basic ${this.token}`
             }
         });
 
@@ -133,7 +133,7 @@ class Client extends EventEmitter {
         }
 
         request.post(request.ENDPOINTS.Message, {
-            Authorization: `Basic ${this._token}`
+            Authorization: `Basic ${this.token}`
         }, {
             server,
             content
