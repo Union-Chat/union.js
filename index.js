@@ -17,7 +17,7 @@ class Server {
         this.messages = [];
         this.members = new Map();
 
-        for (const member in data.members) {
+        for (const member of data.members) {
             this.members.set(member.id, member);
         }
     }
