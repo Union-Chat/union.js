@@ -36,7 +36,7 @@ class Message {
     }
 
     reply(content) {
-        this.client.createMessage(this.server.id, content);
+        return this.client.createMessage(this.server.id, content);
     }
 
     delete() {
@@ -132,7 +132,7 @@ class Client extends EventEmitter {
             throw new Error('Client isn\'t ready!');
         }
 
-        request.post(request.ENDPOINTS.Message, {
+        return request.post(request.ENDPOINTS.Message, {
             Authorization: `Basic ${this.token}`
         }, {
             server,
