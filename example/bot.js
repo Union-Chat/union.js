@@ -5,9 +5,9 @@ const client = new union.Client({
 });
 
 
-const prefix = 'self.'; // Bad prefix is bad
+const prefix = '!';
 
-client.on('ready', () => console.info(`Logged in as ${client.user.username}`))
+client.on('ready', () => console.info(`Logged in as ${client.user.username}`)) // eslint-disable-line
 
 client.on('messageCreate', (msg) => {
     if (!msg.self || !msg.content.startsWith(prefix)) {
@@ -18,6 +18,10 @@ client.on('messageCreate', (msg) => {
 
     if (command === 'ping') {
         msg.reply('Hello!');
+    }
+
+    if (command === 'echo') {
+        msg.reply(args.join(' '));
     }
 });
 

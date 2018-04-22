@@ -1,11 +1,11 @@
 const EventEmitter = require('events');
 const WebSocket = require('ws');
+const request = require('./requester.js');
 
 
 class SelfUser {
-    constructor(username, password) {
+    constructor(username) {
         this.username = username;
-        this.password = password;
     }
 }
 
@@ -15,6 +15,11 @@ class Server {
         this.name = data.name;
         this.id = data.id;
         this.messages = [];
+        this.members = new Map();
+
+        for (const member in data.members) {
+            this.members.set(member.id, member);
+        }
     }
 }
 
@@ -39,12 +44,7 @@ class Message {
             throw new Error('Cannot delete a message not sent by you!');
         }
 
-        const payload = {
-            op: 10,
-            d: this.id
-        }
-
-        this.client._ws.send(JSON.stringify(payload));
+        return; // TODO
     }
 }
 
@@ -65,10 +65,11 @@ class Client extends EventEmitter {
             throw new Error('options.password must exist and not be null!');
         }
 
-        this.user = new SelfUser(options.username, options.password);
+        this.user = new SelfUser(options.username);
         this.ready = false;
         this.servers = new Map();
         this._ws = null;
+        this._token = Buffer.from(`${options.username}:${options.password}`).toString('base64');
     }
 
     _connect() {
@@ -76,10 +77,9 @@ class Client extends EventEmitter {
             this._ws.terminate();
         }
 
-        const encodedAuth = Buffer.from(`${this.user.username}:${this.user.password}`).toString('base64');
         this._ws = new WebSocket('wss://union.serux.pro:2096', {
             headers: {
-                'Authorization': `Basic ${encodedAuth}`
+                'Authorization': `Basic ${this._token}`
             }
         });
 
@@ -100,25 +100,26 @@ class Client extends EventEmitter {
 
         try {
             payload = JSON.parse(payload);
-            
+
             switch (payload.op) {
                 case 1: // Hello
                     this.ready = true;
-                    for (let server of payload.d) {
+                    for (const server of payload.d) {
                         this.servers.set(server.id, new Server(server));
                     }
                     this.emit('ready');
                     break;
-                case 3: // Message
+                case 3: { // Message Received
                     const message = new Message(this, payload.d);
                     this.servers.get(payload.d.server).messages.push(message);
                     this.emit('messageCreate', message);
                     break;
+                }
                 case 11: // Error processing request
                     this.emit('badRequest', payload.d);
             }
         } catch (e) {
-            // Unexpected error parsing json or something
+            this.emit('error', e);
         }
     }
 
@@ -131,13 +132,12 @@ class Client extends EventEmitter {
             throw new Error('Client isn\'t ready!');
         }
 
-        this._ws.send(JSON.stringify({
-            op: 8,
-            d: {
-                server,
-                content
-            }
-        }));
+        request.post(request.ENDPOINTS.Message, {
+            Authorization: `Basic ${this._token}`
+        }, {
+            server,
+            content
+        });
     }
 }
 
