@@ -6,7 +6,7 @@ const ENDPOINTS = {
     Message: 'message'
 };
 
-function request(method, endpoint, headers, data) {
+function request (method, endpoint, headers, data) {
     return new Promise((resolve, reject) => {
         const route = parse(API_ENDPOINT + endpoint);
         const { hostname, path } = route;
@@ -22,7 +22,7 @@ function request(method, endpoint, headers, data) {
 
         const req = https.request(opts, (res) => {
             if (res.statusCode !== 200) {
-                return reject(`Status code not 200: ${res.statusCode}`);
+                return reject({ statusCode: res.statusCode, error: res.statusMessage });
             }
 
             const chunks = [];
@@ -43,11 +43,11 @@ function request(method, endpoint, headers, data) {
     });
 }
 
-function get(endpoint, headers = {}, data = {}) {
+function get (endpoint, headers = {}, data = {}) {
     return request('GET', endpoint, headers, data);
 }
 
-function post(endpoint, headers = {}, data = {}) {
+function post (endpoint, headers = {}, data = {}) {
     return request('POST', endpoint, headers, data);
 }
 

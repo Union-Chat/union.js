@@ -4,14 +4,14 @@ const request = require('./requester.js');
 
 
 class SelfUser {
-    constructor(username) {
+    constructor (username) {
         this.username = username;
     }
 }
 
 
 class Server {
-    constructor(data) {
+    constructor (data) {
         this.name = data.name;
         this.id = data.id;
         this.messages = [];
@@ -25,7 +25,7 @@ class Server {
 
 
 class Message {
-    constructor(client, msg) {
+    constructor (client, msg) {
         this.client = client;
         this.server = this.client.servers.get(msg.server);
         this.content = msg.content;
@@ -35,11 +35,11 @@ class Message {
         this.self = this.author === this.client.user.username;
     }
 
-    reply(content) {
+    reply (content) {
         return this.client.createMessage(this.server.id, content);
     }
 
-    delete() {
+    delete () {
         if (this.author !== this.client.user.username) {
             throw new Error('Cannot delete a message not sent by you!');
         }
@@ -50,7 +50,7 @@ class Message {
 
 
 class Client extends EventEmitter {
-    constructor(options) {
+    constructor (options) {
         super();
 
         if (!(options instanceof Object)) {
@@ -72,7 +72,7 @@ class Client extends EventEmitter {
         this.token = Buffer.from(`${options.username}:${options.password}`).toString('base64');
     }
 
-    _connect() {
+    _connect () {
         if (this._ws) {
             this._ws.terminate();
         }
@@ -95,39 +95,37 @@ class Client extends EventEmitter {
         this._ws.on('message', this._handlePayload.bind(this));
     }
 
-    _handlePayload(payload) {
+    _handlePayload (payload) {
         this.emit('rawData', payload);
 
         try {
             payload = JSON.parse(payload);
 
             switch (payload.op) {
-                case 1: // Hello
-                    this.ready = true;
-                    for (const server of payload.d) {
-                        this.servers.set(server.id, new Server(server));
-                    }
-                    this.emit('ready');
-                    break;
-                case 3: { // Message Received
-                    const message = new Message(this, payload.d);
-                    this.servers.get(payload.d.server).messages.push(message);
-                    this.emit('messageCreate', message);
-                    break;
+            case 1: // Hello
+                this.ready = true;
+                for (const server of payload.d) {
+                    this.servers.set(server.id, new Server(server));
                 }
-                case 11: // Error processing request
-                    this.emit('badRequest', payload.d);
+                this.emit('ready');
+                break;
+            case 3: { // Message Received
+                const message = new Message(this, payload.d);
+                this.servers.get(payload.d.server).messages.push(message);
+                this.emit('messageCreate', message);
+                break;
+            }
             }
         } catch (e) {
             this.emit('error', e);
         }
     }
 
-    start() {
+    start () {
         this._connect();
     }
 
-    createMessage(server, content) {
+    createMessage (server, content) {
         if (!this.ready) {
             throw new Error('Client isn\'t ready!');
         }
