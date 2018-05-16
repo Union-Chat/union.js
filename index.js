@@ -102,19 +102,19 @@ class Client extends EventEmitter {
             payload = JSON.parse(payload);
 
             switch (payload.op) {
-            case 1: // Hello
-                this.ready = true;
-                for (const server of payload.d) {
-                    this.servers.set(server.id, new Server(server));
+                case 1: // Hello
+                    this.ready = true;
+                    for (const server of payload.d) {
+                        this.servers.set(server.id, new Server(server));
+                    }
+                    this.emit('ready');
+                    break;
+                case 3: { // Message Received
+                    const message = new Message(this, payload.d);
+                    this.servers.get(payload.d.server).messages.push(message);
+                    this.emit('messageCreate', message);
+                    break;
                 }
-                this.emit('ready');
-                break;
-            case 3: { // Message Received
-                const message = new Message(this, payload.d);
-                this.servers.get(payload.d.server).messages.push(message);
-                this.emit('messageCreate', message);
-                break;
-            }
             }
         } catch (e) {
             this.emit('error', e);

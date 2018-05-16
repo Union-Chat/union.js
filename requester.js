@@ -1,10 +1,18 @@
 const https = require('https');
 const { parse } = require('url');
 
+
 const API_ENDPOINT = 'https://union.serux.pro/api/';
+
 const ENDPOINTS = {
     Message: 'message'
 };
+
+const defaultHeaders = {
+    'User-Agent': 'UnionBot/1.0 (union.js, https://github.com/Union-Chat/union.js)',
+    'Content-Type': 'application/json'
+};
+
 
 function request (method, endpoint, headers, data) {
     return new Promise((resolve, reject) => {
@@ -21,19 +29,15 @@ function request (method, endpoint, headers, data) {
         };
 
         const req = https.request(opts, (res) => {
-            if (res.statusCode !== 200) {
-                return reject({ statusCode: res.statusCode, error: res.statusMessage });
-            }
-
             const chunks = [];
 
-            res.on('data', (chunk) => chunks.push(chunk));
+            res.on('data', chunks.push.bind(chunks));
             res.on('end', () => {
-                const concatenated = Buffer.concat(chunks).toString();
+                const concatenated = jsonSafeParse(Buffer.concat(chunks).toString());
 
-                try {
-                    resolve(JSON.parse(concatenated));
-                } catch(_) {
+                if (res.statusCode !== 200) {
+                    reject(concatenated, res.statusCode);
+                } else {
                     resolve(concatenated);
                 }
             });
@@ -43,21 +47,17 @@ function request (method, endpoint, headers, data) {
     });
 }
 
-function get (endpoint, headers = {}, data = {}) {
-    return request('GET', endpoint, headers, data);
+function jsonSafeParse (data) {
+    try {
+        return JSON.parse(data);
+    } catch (_) {
+        return data;
+    }
 }
 
-function post (endpoint, headers = {}, data = {}) {
-    return request('POST', endpoint, headers, data);
-}
-
-const defaultHeaders = {
-    'User-Agent': 'UnionBot/1.0 (union.js, https://github.com/Union-Chat/union.js)',
-    'Content-Type': 'application/json'
-};
 
 module.exports = {
     ENDPOINTS,
-    get,
-    post
+    get: request.bind(null, 'GET'),
+    post: request.bind(null, 'POST')
 };
