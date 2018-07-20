@@ -5,13 +5,18 @@ const { parse } = require('url');
 const API_ENDPOINT = 'https://union.serux.pro/api/';
 
 const ENDPOINTS = {
-    Message: 'message'
+    Message: 'server/:id/messages'
 };
 
 const defaultHeaders = {
     'User-Agent': 'UnionBot/1.0 (union.js, https://github.com/Union-Chat/union.js)',
     'Content-Type': 'application/json'
 };
+
+
+function getRoute(route, id) {
+  return ENDPOINTS[route].replace(':id', id);
+}
 
 
 function request (method, endpoint, headers, data) {
@@ -59,5 +64,6 @@ function jsonSafeParse (data) {
 module.exports = {
     ENDPOINTS,
     get: request.bind(null, 'GET'),
-    post: request.bind(null, 'POST')
+    post: request.bind(null, 'POST'),
+    getRoute
 };

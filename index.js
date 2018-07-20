@@ -14,7 +14,8 @@ class Server {
     constructor (data) {
         this.name = data.name;
         this.id = data.id;
-        this.messages = [];
+        this.owner = data.owner;
+        this.messages = new Map();
         this.members = new Map();
 
         for (const member of data.members) {
@@ -111,7 +112,7 @@ class Client extends EventEmitter {
                     break;
                 case 3: { // Message Received
                     const message = new Message(this, payload.d);
-                    this.servers.get(payload.d.server).messages.push(message);
+                    this.servers.get(payload.d.server).messages.set(message.id, message);
                     this.emit('messageCreate', message);
                     break;
                 }
@@ -130,10 +131,9 @@ class Client extends EventEmitter {
             throw new Error('Client isn\'t ready!');
         }
 
-        return request.post(request.ENDPOINTS.Message, {
+        return request.post(request.getRoute('Message', server), {
             Authorization: `Basic ${this.token}`
         }, {
-            server,
             content
         });
     }
